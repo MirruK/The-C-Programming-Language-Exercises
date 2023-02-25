@@ -18,6 +18,7 @@ void fahr_cels(){
   }
 }
 
+// Exercise 1.15
 void cels_fahr(){
   int cels = LOWER;
   int fahr;
