@@ -1,1 +1,2 @@
-# Exercises and other code for the book "The C Programming Language"
+# The C Programming Language - Brian W. Kernighan & Dennis M. Richie | Exercises
+This repo exists mostly for archiving purposes.
