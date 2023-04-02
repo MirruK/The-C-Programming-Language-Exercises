@@ -15,21 +15,48 @@
 // };
 
 // Declarations (Move to header file later)
+#define MAXVAL 100 /* maximum depth of val stack */
+int sp = 0; /* next free stack position */
+double val[MAXVAL]; /* value stack */
+void print_stack();
+
+#define BUFSIZE 100
+int bufp = 0; /* next free position in buf */
+char buf[BUFSIZE]; /* buffer for ungetch */
+
 int getch(void);
 void ungetch(int);
 double pop(void);
 void push(double);
 int parse_number(char num_buf[]);
 int parse_token(char token_buf[]);
+double eval_op(char token_buf[]);
 
-double add(double a, double b){
-    return a + b;
+double op_add(double op_args[2]){
+    return op_args[0] + op_args[1];
 };
-double sub(double a, double b){
-    return a - b;
+double op_sub(double op_args[2]){
+    return op_args[1] - op_args[0];
 };
-double (*operator_functions[])() = {add, sub, sin, cos, pow, exp};
-char operator_strings[6][3] = {"add", "sub", "sin", "cos", "pow", "exp"};
+double op_mul(double op_args[2]){
+    return op_args[0] * op_args[1];
+};
+double op_sin(double op_args[2]){
+    return sin(op_args[0]);
+};
+double op_cos(double op_args[2]){
+    return cos(op_args[0]);
+};
+double op_pow(double op_args[2]){
+    return pow(op_args[1], op_args[0]);
+};
+double op_exp(double op_args[2]){
+    return exp(op_args[0]);
+};
+
+double (*operator_functions[])() = {op_add, op_sub, op_mul, op_sin, op_cos, op_pow, op_exp};
+char* operator_strings[7] = {"+", "-", "*", "sin", "cos", "pow", "exp"};
+int operator_nargs[7] = {2, 2, 2, 1, 1, 2, 1};
 
 int main(){
     int action = 0;
@@ -37,10 +64,21 @@ int main(){
     while(1){ 
         action = parse_number(buffer);
         if (action > -1){
+            push(atof(buffer));
         }
-        else if (action == -1) parse_token(buffer);
-        else break;
-        printf("Parsed token: %s\n", buffer);
+        // Do the thing branch
+        else if (action == -1) {
+            parse_token(buffer);
+            push(eval_op(buffer));
+            printf("Result of last operation: %f\n", val[sp-1]);
+        }
+        else {
+            printf("Result: %f\n", pop());
+            break;
+        }
+        //printf("Parsed token: %s\n");
+        // Print the whole stack
+        //print_stack();
     }
 }
 
@@ -119,17 +157,33 @@ int parse_token(char token_buf[]){
     token_buf[i+1] = '\0';
     return 1;
     
-    // for (int j=0; j<sizeof(operator_strings); j++){
-    //     if (strcmp(token_buf, operator_strings[j]) == 0){
-    //          
-    //     }
-    // }
     
 }
 
-#define MAXVAL 100 /* maximum depth of val stack */
-int sp = 0; /* next free stack position */
-double val[MAXVAL]; /* value stack */
+
+double eval_op(char token_buf[]){
+    for(char k=0; token_buf[k] != '\0'; k++){
+        if(token_buf[k] == '\n') {
+            token_buf[k] = '\0';
+            break;
+        }
+    }
+    // This means there is support for maximum 2 args per operator
+    double op_args[2];
+    double result = 0;
+    // TODO: number of operators is hardcoded, FIX THIS
+    for (int j = 0; j < 7; j++){
+        if (strcmp(token_buf, operator_strings[j]) == 0){
+            for(int i = 0; i < operator_nargs[j]; i++){
+                op_args[i] = pop();
+            }
+            result = (*operator_functions[j])(op_args);
+            break;
+        }
+    }
+    return result;
+}
+
 /* push: push f onto value stack */
 void push(double f)
 {
@@ -148,10 +202,14 @@ double pop(void)
         return 0.0;
     }
 }
+/* Function to print the stack, for debugging purposes*/
+void print_stack(){
+    printf("Printing stack\n"); 
+    for(int i = 0; i<sp; i++){
+        printf("%f\n", val[i]);
+    }
+}
 
-#define BUFSIZE 100
-char buf[BUFSIZE]; /* buffer for ungetch */
-int bufp = 0; /* next free position in buf */
 int getch(void) /* get a (possibly pushed-back) character */
 {
     return (bufp > 0) ? buf[--bufp] : getchar();
