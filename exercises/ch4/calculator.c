@@ -1,3 +1,4 @@
+/* See ./calculatormk2.c for working calculator */
 #include <stdio.h>
 #include <stdlib.h> /* for atof() */
 #include <math.h>
@@ -105,21 +106,21 @@ void print_top(void)
     printf("Value at top of stack = %f\n", val[sp-1]);
 }
 
-// void duplicate_stack(float dest[])
-// {
-//     if(sizeof(dest) < sp)
-//     {
-//         printf("insufficient destination array size\n(Minimum %d elements large)\n", sp);
-//     }
-//     int sp_cpy = 0;
-//     int max_i = sp;
-//     while(sp_cpy < max_i)
-//     {
-//         dest[sp_cpy] = val[sp_cpy];
-//         sp_cpy++;
-//     }
-// }
-//
+void duplicate_stack(float dest[])
+{
+    // if(sizeof(dest) < sp)
+    // {
+    //     printf("insufficient destination array size\n(Minimum %d elements large)\n", sp);
+    // }
+    int sp_cpy = 0;
+    int max_i = sp;
+    while(sp_cpy < max_i)
+    {
+        dest[sp_cpy] = val[sp_cpy];
+        sp_cpy++;
+    }
+}
+
 void swap_head(void)
 {
     int tmp = val[sp-2];
@@ -269,10 +270,34 @@ int getch(void) /* get a (possibly pushed-back) character */
 {
     return (bufp > 0) ? buf[--bufp] : getchar();
 }
+/*
+ * ungetch & getch with max one char of pushback (exercise 4-8)
+ * Modify them to use a variable instead of an array
+ * There is practically no advantage to this (Array uses some memory)
+ * */
+
+// Exercise 4-9, don't understand
+//
+// Exercise 4-10, instead of consuming one character at a time
+// one could iterate over a string returned by getline
+// modifications to parse_number are needed
+//
+// Exercise 4-11 static char temp[]; hold ungotten chars in getop
+// Should work like buf in ungetch
+
 void ungetch(int c) /* push character back on input */
 {
     if (bufp >= BUFSIZE)
         printf("ungetch: too many characters\n");
     else
         buf[bufp++] = c;
+}
+// Exercise 4-7
+void ungets(char s[]){
+    int i = 0;
+    char c;
+    while((c = s[i]) != '\0'){
+        ungetch(c);
+        i++;
+    }
 }

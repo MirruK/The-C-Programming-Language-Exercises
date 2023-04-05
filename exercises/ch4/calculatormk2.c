@@ -4,16 +4,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-// Feels redundant rn, might use if necessary
-// enum OPERATORS{
-//      PLUS,
-//      MINUS,
-//      SINE,
-//      COSINE,
-//      POW,
-//      EXP 
-// };
-
 // Declarations (Move to header file later)
 #define MAXVAL 100 /* maximum depth of val stack */
 int sp = 0; /* next free stack position */
